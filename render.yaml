@@ -29,9 +29,8 @@ services:
     plan: free
     runtime: node
     repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
-    rootDir: web
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: cd web && npm install && npm run build
+    startCommand: cd web && npx serve -s build -l 3000
     envVars:
       - key: REACT_APP_API_URL
         fromService:
