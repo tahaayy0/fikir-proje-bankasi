@@ -7,7 +7,7 @@ services:
     name: fikir-proje-bankasi-backend
     plan: free
     runtime: node
-    repo: https://github.com/your-username/fikir-proje-bankasi.git
+    repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -28,7 +28,7 @@ services:
     name: fikir-proje-bankasi-frontend
     plan: free
     runtime: static
-    repo: https://github.com/your-username/fikir-proje-bankasi.git
+    repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
     rootDir: web
     buildCommand: npm install && npm run build
     staticPublishPath: ./build
