@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend for Fikir Proje Bankası",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -14,7 +15,7 @@
     "postcss": "^8.4.29"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npx serve -s build -l 3000",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

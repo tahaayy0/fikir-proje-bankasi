@@ -29,8 +29,8 @@ services:
     plan: free
     runtime: node
     repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
-    buildCommand: cd web && npm install
-    startCommand: cd web && npm run start-prod
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: REACT_APP_API_URL
         fromService:
@@ -38,4 +38,6 @@ services:
           name: fikir-proje-bankasi-backend
           envVarKey: RENDER_EXTERNAL_URL
       - key: PORT
-        value: 3000 
+        value: 3000
+      - key: CI
+        value: false 
