@@ -3,7 +3,7 @@ services:
     build: ./backend
     container_name: backend_container
     ports:
-      - "5000:5000"
+      - "5001:5000"
     env_file: .env
     volumes:
       - ./backend:/app
@@ -20,4 +20,4 @@ services:
       - ./web:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:5000/api 
+      - REACT_APP_API_URL=http://localhost:5001/api 
