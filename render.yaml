@@ -1,34 +1,46 @@
-# Fikir Proje Bankası - Render Blueprint (Free Tier Only)
-# This blueprint only includes free services available in Render
+# Fikir Proje Bankası - Render Blueprint
+# This Blueprint defines the infrastructure for the Fikir Proje Bankası application
 
 services:
-  # Frontend Static Site (FREE)
+  # Backend API Service
+  - type: web
+    name: fikir-proje-bankasi-backend
+    plan: free
+    runtime: node
+    repo: https://github.com/your-username/fikir-proje-bankasi.git
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        sync: false  # Will prompt for this secret value during setup
+      - key: MONGO_URI
+        fromDatabase:
+          name: fikir-proje-bankasi-db
+          property: connectionString
+
+  # Frontend Web Service
   - type: web
     name: fikir-proje-bankasi-frontend
+    plan: free
     runtime: static
-    buildCommand: cd web && npm install && npm run build
-    staticPublishPath: ./web/build
-    autoDeploy: true
+    repo: https://github.com/your-username/fikir-proje-bankasi.git
+    rootDir: web
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
-        value: https://your-backend-url.com/api # Update with your actual backend URL
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-      - path: /static/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-      - path: /index.html
-        name: Cache-Control
-        value: no-cache
-      - path: /manifest.json
-        name: Cache-Control
-        value: no-cache
+        fromService:
+          type: web
+          name: fikir-proje-bankasi-backend
+          envVarKey: RENDER_EXTERNAL_URL
 
-# Note: Backend service is not included because Render no longer offers free web services
-# You need to host your backend separately on:
-# - Railway (free tier)
-# - Heroku (free tier) 
-# - Vercel (serverless functions)
-# - Netlify (serverless functions) 
+# Database
+databases:
+  - name: fikir-proje-bankasi-db
+    plan: free
+    databaseName: fikir_proje_bankasi 
