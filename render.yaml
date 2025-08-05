@@ -15,7 +15,6 @@ services:
         sync: false # MongoDB Atlas connection string'i buraya ekleyin
     healthCheckPath: /api/health
     autoDeploy: true
-    region: oregon # veya size en yakın bölge
 
   # Frontend Web Service
   - type: web
@@ -28,7 +27,6 @@ services:
       - key: REACT_APP_API_URL
         value: https://fikir-proje-bankasi-backend.onrender.com/api
     autoDeploy: true
-    region: oregon # veya size en yakın bölge
     headers:
       - path: /*
         name: Cache-Control
