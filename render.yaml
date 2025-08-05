@@ -1,9 +1,9 @@
 # Fikir Proje Bankası - Render Blueprint
-# This Blueprint defines the infrastructure for the Fikir Proje Bankası application
-# Backend includes integrated database functionality
+# Bu Blueprint, Fikir Proje Bankası uygulamasının altyapısını tanımlar
+# Backend entegre veritabanı işlevselliği içerir
 
 services:
-  # Backend API Service with Integrated Database
+  # Backend API Servisi (Entegre Veritabanı ile)
   - type: web
     name: fikir-proje-bankasi-backend
     plan: free
@@ -18,12 +18,12 @@ services:
       - key: PORT
         value: 5000
       - key: JWT_SECRET
-        sync: false  # Will prompt for this secret value during setup
+        sync: false
       - key: MONGO_URI
         value: "mongodb+srv://username:password@cluster.mongodb.net/database_name"
-        sync: true  # MongoDB Atlas connection string - will prompt during setup
+        sync: false
 
-  # Frontend Web Service
+  # Frontend Web Servisi
   - type: web
     name: fikir-proje-bankasi-frontend
     plan: free
@@ -31,7 +31,7 @@ services:
     repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
     rootDir: web
     buildCommand: npm install && npm run build
-    startCommand: serve -s build -l 3000
+    startCommand: npm start
     envVars:
       - key: REACT_APP_API_URL
         fromService:
