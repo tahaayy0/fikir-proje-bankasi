@@ -1,32 +1,35 @@
+# Fikir Proje Bankası - Render Blueprint
+# This file defines the services for the Fikir Proje Bankası application
+
 services:
   # Backend API Service
   - type: web
     name: fikir-proje-bankasi-backend
-    env: node
+    runtime: node
     plan: free
     buildCommand: cd backend && npm install --production
     startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
       - key: MONGO_URI
-        sync: false # MongoDB Atlas connection string'i buraya ekleyin
-    healthCheckPath: /api/health
-    autoDeploy: true
+        sync: false # MongoDB Atlas connection string - will be prompted during setup
 
   # Frontend Web Service
   - type: web
     name: fikir-proje-bankasi-frontend
-    env: static
+    runtime: static
     plan: free
     buildCommand: cd web && npm install && npm run build
     staticPublishPath: ./web/build
+    autoDeploy: true
     envVars:
       - key: REACT_APP_API_URL
         value: https://fikir-proje-bankasi-backend.onrender.com/api
-    autoDeploy: true
     headers:
       - path: /*
         name: Cache-Control
