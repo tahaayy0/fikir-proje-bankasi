@@ -1,7 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [formData, setFormData] = useState({
+    isim: '',
+    soyisim: '',
+    aciklama: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form verileri:', formData);
+    // Burada API'ye gönderme işlemi yapılabilir
+    alert('Form başarıyla gönderildi!');
+  };
+
   return (
     <div className="container">
       <header className="header">
@@ -11,24 +32,54 @@ function App() {
       
       <main className="main">
         <div className="card">
-          <h2 className="card-title">Hoş Geldiniz! 🚀</h2>
-          <p className="card-text">
-            Fikir Proje Bankası, projelerinizi organize etmenize ve yönetmenize yardımcı olan modern bir platformdur.
-          </p>
-          <div className="features">
-            <div className="feature">
-              <h3 className="feature-title">Proje Yönetimi</h3>
-              <p className="feature-text">Projelerinizi kolayca oluşturun ve yönetin</p>
+          <h2 className="card-title">Proje Formu</h2>
+          <form onSubmit={handleSubmit} className="form">
+            <div className="form-group">
+              <label htmlFor="isim" className="form-label">İsim</label>
+              <input
+                type="text"
+                id="isim"
+                name="isim"
+                value={formData.isim}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="İsminizi girin"
+                required
+              />
             </div>
-            <div className="feature">
-              <h3 className="feature-title">Takım İşbirliği</h3>
-              <p className="feature-text">Takım üyelerinizle etkili iletişim kurun</p>
+            
+            <div className="form-group">
+              <label htmlFor="soyisim" className="form-label">Soyisim</label>
+              <input
+                type="text"
+                id="soyisim"
+                name="soyisim"
+                value={formData.soyisim}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="Soyisminizi girin"
+                required
+              />
             </div>
-            <div className="feature">
-              <h3 className="feature-title">İlerleme Takibi</h3>
-              <p className="feature-text">Proje ilerlemenizi gerçek zamanlı takip edin</p>
+            
+            <div className="form-group">
+              <label htmlFor="aciklama" className="form-label">Açıklama</label>
+              <textarea
+                id="aciklama"
+                name="aciklama"
+                value={formData.aciklama}
+                onChange={handleInputChange}
+                className="form-textarea"
+                placeholder="Proje açıklamanızı girin"
+                rows="4"
+                required
+              />
             </div>
-          </div>
+            
+            <button type="submit" className="form-button">
+              Gönder
+            </button>
+          </form>
         </div>
         
         <div className="card">
