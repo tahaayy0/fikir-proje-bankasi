@@ -15,12 +15,14 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.7.1",
     "react-scripts": "5.0.1",
-    "serve": "^14.2.4",
     "tailwindcss": "^4.1.11",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
   "scripts": {
-    "start": "serve -s build -l 3000",
+    "start": "npx serve -s build -l 3000",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
