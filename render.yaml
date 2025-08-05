@@ -1,8 +1,9 @@
 # Fikir Proje Bankası - Render Blueprint
 # This Blueprint defines the infrastructure for the Fikir Proje Bankası application
+# Backend includes integrated database functionality
 
 services:
-  # Backend API Service
+  # Backend API Service with Integrated Database
   - type: web
     name: fikir-proje-bankasi-backend
     plan: free
@@ -19,9 +20,7 @@ services:
       - key: JWT_SECRET
         sync: false  # Will prompt for this secret value during setup
       - key: MONGO_URI
-        fromDatabase:
-          name: fikir-proje-bankasi-db
-          property: connectionString
+        sync: true  # MongoDB Atlas connection string - will prompt during setup
 
   # Frontend Web Service
   - type: web
@@ -37,10 +36,4 @@ services:
         fromService:
           type: web
           name: fikir-proje-bankasi-backend
-          envVarKey: RENDER_EXTERNAL_URL
-
-# Database
-databases:
-  - name: fikir-proje-bankasi-db
-    plan: free
-    databaseName: fikir_proje_bankasi 
+          envVarKey: RENDER_EXTERNAL_URL 
