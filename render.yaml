@@ -31,7 +31,7 @@ services:
     repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
     rootDir: web
     buildCommand: npm install
-    startCommand: cd web && npm start
+    startCommand: npm start
     envVars:
       - key: REACT_APP_API_URL
         fromService:
