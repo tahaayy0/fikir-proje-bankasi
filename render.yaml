@@ -1,12 +1,14 @@
 # Fikir Proje Bankası - Render Blueprint
 # This file defines the services for the Fikir Proje Bankası application
 
+previews:
+  generation: automatic
+
 services:
   # Backend API Service
   - type: web
     name: fikir-proje-bankasi-backend
     runtime: node
-    plan: starter
     buildCommand: cd backend && npm install --production
     startCommand: cd backend && npm start
     healthCheckPath: /api/health
@@ -23,10 +25,12 @@ services:
   - type: web
     name: fikir-proje-bankasi-frontend
     runtime: static
-    plan: starter
+    plan: free
     buildCommand: cd web && npm install && npm run build
     staticPublishPath: ./web/build
     autoDeploy: true
+    previews:
+      generation: automatic
     envVars:
       - key: REACT_APP_API_URL
         value: https://fikir-proje-bankasi-backend.onrender.com/api
