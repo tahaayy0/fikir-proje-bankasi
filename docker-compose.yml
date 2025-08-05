@@ -20,4 +20,4 @@ services:
       - ./web:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:5001/api 
+      - REACT_APP_API_URL=http://backend:5000/api 

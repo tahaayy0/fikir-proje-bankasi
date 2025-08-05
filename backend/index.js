@@ -42,10 +42,28 @@ app.get('/api/test', (req, res) => {
 
 // Health check route
 app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStates = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: {
+      status: dbStates[dbState] || 'unknown',
+      readyState: dbState,
+      host: mongoose.connection.host || 'unknown',
+      port: mongoose.connection.port || 'unknown',
+      name: mongoose.connection.name || 'unknown'
+    },
+    services: {
+      api: 'running',
+      database: dbState === 1 ? 'connected' : 'disconnected'
+    }
   });
 });
 

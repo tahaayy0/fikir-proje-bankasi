@@ -139,7 +139,7 @@ function App() {
           {healthData && (
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-8">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Sistem Sağlığı</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl mb-2">🕐</div>
                   <div className="text-sm text-gray-600">Son Güncelleme</div>
@@ -149,19 +149,55 @@ function App() {
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl mb-2">📊</div>
-                  <div className="text-sm text-gray-600">Durum</div>
+                  <div className="text-sm text-gray-600">API Durumu</div>
                   <div className="font-medium text-sm text-green-600">{healthData.status}</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl mb-2">🗄️</div>
-                  <div className="text-sm text-gray-600">Veritabanı</div>
+                  <div className="text-sm text-gray-600">MongoDB</div>
                   <div className={`font-medium text-sm ${
-                    healthData.database === 'connected' ? 'text-green-600' : 'text-red-600'
+                    healthData.database?.status === 'connected' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {healthData.database === 'connected' ? 'Bağlı' : 'Bağlantısız'}
+                    {healthData.database?.status === 'connected' ? 'Bağlı' : 'Bağlantısız'}
+                  </div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl mb-2">🔗</div>
+                  <div className="text-sm text-gray-600">Bağlantı Durumu</div>
+                  <div className="font-medium text-sm text-blue-600">
+                    {healthData.database?.readyState === 1 ? 'Aktif' : 'Pasif'}
                   </div>
                 </div>
               </div>
+              
+              {/* MongoDB Connection Details */}
+              {healthData.database && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-blue-800 mb-3">MongoDB Bağlantı Detayları</h4>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-blue-600 font-medium">Host:</span>
+                      <span className="ml-2 text-gray-700">{healthData.database.host}</span>
+                    </div>
+                    <div>
+                      <span className="text-blue-600 font-medium">Port:</span>
+                      <span className="ml-2 text-gray-700">{healthData.database.port}</span>
+                    </div>
+                    <div>
+                      <span className="text-blue-600 font-medium">Database:</span>
+                      <span className="ml-2 text-gray-700">{healthData.database.name}</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-blue-600 font-medium">Durum:</span>
+                    <span className={`ml-2 font-medium ${
+                      healthData.database.status === 'connected' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {healthData.database.status === 'connected' ? '✅ Bağlantı Aktif' : '❌ Bağlantı Yok'}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

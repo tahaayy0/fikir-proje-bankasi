@@ -1,0 +1,44 @@
+services:
+  # Backend API Service
+  - type: web
+    name: fikir-proje-bankasi-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install --production
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false # MongoDB Atlas connection string'i buraya ekleyin
+    healthCheckPath: /api/health
+    autoDeploy: true
+    region: oregon # veya size en yakın bölge
+
+  # Frontend Web Service
+  - type: web
+    name: fikir-proje-bankasi-frontend
+    env: static
+    plan: free
+    buildCommand: cd web && npm install && npm run build
+    staticPublishPath: ./web/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://fikir-proje-bankasi-backend.onrender.com/api
+    autoDeploy: true
+    region: oregon # veya size en yakın bölge
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.json
+        name: Cache-Control
+        value: no-cache 
