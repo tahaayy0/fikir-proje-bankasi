@@ -1,24 +1,17 @@
-# Fikir Proje Bankası - Render Blueprint
-# This file defines the services for the Fikir Proje Bankası application
-# Note: Only free services are included - backend needs to be hosted elsewhere
-
-previews:
-  generation: automatic
+# Fikir Proje Bankası - Render Blueprint (Free Tier Only)
+# This blueprint only includes free services available in Render
 
 services:
-  # Frontend Web Service (Static Site - FREE)
+  # Frontend Static Site (FREE)
   - type: web
     name: fikir-proje-bankasi-frontend
     runtime: static
-    plan: free
     buildCommand: cd web && npm install && npm run build
     staticPublishPath: ./web/build
     autoDeploy: true
-    previews:
-      generation: automatic
     envVars:
       - key: REACT_APP_API_URL
-        value: https://your-backend-url.com/api # Update this to your actual backend URL
+        value: https://your-backend-url.com/api # Update with your actual backend URL
     headers:
       - path: /*
         name: Cache-Control
@@ -33,10 +26,9 @@ services:
         name: Cache-Control
         value: no-cache
 
-# Note: Backend service removed because Render no longer offers free web services
-# You can host your backend on:
-# - Railway (free tier available)
-# - Heroku (free tier available)
-# - Vercel (free tier for serverless functions)
-# - Netlify (free tier for serverless functions)
-# - Or use a free database service like MongoDB Atlas with serverless functions 
+# Note: Backend service is not included because Render no longer offers free web services
+# You need to host your backend separately on:
+# - Railway (free tier)
+# - Heroku (free tier) 
+# - Vercel (serverless functions)
+# - Netlify (serverless functions) 
