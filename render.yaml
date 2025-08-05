@@ -27,11 +27,11 @@ services:
   - type: web
     name: fikir-proje-bankasi-frontend
     plan: free
-    runtime: static
+    runtime: node
     repo: https://github.com/tahaayy0/fikir-proje-bankasi.git
     rootDir: web
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./build
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: REACT_APP_API_URL
         fromService:
