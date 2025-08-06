@@ -1,13 +1,21 @@
+version: '3.9'
 services:
   backend:
     build: ./backend
     container_name: backend_container
     ports:
       - "5001:5000"
-    env_file: .env
+      - "27017:27017"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGO_URI=mongodb://localhost:27017/myappdb
+      - JWT_SECRET=supersecretkey123456789
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - mongo-data:/data/db
+    restart: unless-stopped
 
   web:
     build: ./web
@@ -20,4 +28,8 @@ services:
       - ./web:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://backend:5000/api 
+      - REACT_APP_API_URL=http://localhost:5001/api
+    restart: unless-stopped
+
+volumes:
+  mongo-data: 

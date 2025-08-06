@@ -1,62 +1,70 @@
 # Fikir Proje Bankası
 
-Modern web teknolojileri ile geliştirilmiş proje yönetim platformu.
+Bu proje, web (React) ve backend (Node.js/Express) olmak üzere iki ana bileşenden oluşuyor. MongoDB veritabanı kullanılarak proje yönetimi için kapsamlı bir API sağlar.
 
-## 🚀 Teknolojiler
+## 🚀 Özellikler
 
-- **Frontend**: React 18, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Containerization**: Docker & Docker Compose
-- **Deployment**: Render
+- **RESTful API**: Swagger dokümantasyonu ile tam API desteği
+- **Proje Yönetimi**: CRUD işlemleri ile proje ekleme, düzenleme, silme
+- **Filtreleme ve Arama**: Kategori, durum ve metin bazlı arama
+- **İstatistikler**: Kategorilere göre proje istatistikleri
+- **Docker Desteği**: Tam containerized yapı
+- **MongoDB**: NoSQL veritabanı ile esnek veri yapısı
 
-## 📁 Proje Yapısı
+## 🛠️ Teknolojiler
 
-```
-fikir-proje-bankasi/
-├── web/                  # Frontend (React)
-│   ├── public/
-│   ├── src/
-│   ├── Dockerfile
-│   └── package.json
-├── backend/              # Backend (Node.js/Express)
-│   ├── index.js
-│   ├── Dockerfile
-│   └── package.json
-├── docker-compose.yml    # Docker Compose
-├── .env                  # Environment variables
-└── README.md
-```
+- **Backend**: Node.js, Express.js, MongoDB (container içinde), Mongoose
+- **Frontend**: React.js
+- **Dokümantasyon**: Swagger/OpenAPI 3.0
+- **Container**: Docker, Docker Compose (2 servis)
+- **Validasyon**: Express Validator
 
-## 🛠️ Kurulum
+## 📋 API Endpoints
+
+### Projeler
+- `GET /api/projeler` - Tüm projeleri listele
+- `GET /api/projeler/:id` - ID ile proje getir
+- `POST /api/projeler` - Yeni proje oluştur
+- `PUT /api/projeler/:id` - Proje güncelle
+- `DELETE /api/projeler/:id` - Proje sil (soft delete)
+- `GET /api/projeler/istatistikler/kategori` - Kategori istatistikleri
+
+### Sistem
+- `GET /api/health` - Sistem sağlık kontrolü
+- `GET /api/test` - API test endpoint'i
+
+## 🚀 Kurulum ve Çalıştırma
 
 ### Gereksinimler
-- Docker & Docker Compose
+- Docker ve Docker Compose
 - Node.js 18+ (geliştirme için)
 
-### Hızlı Başlangıç
-
-1. **Repository'yi klonlayın:**
+### 1. Projeyi Klonlayın
 ```bash
 git clone <repository-url>
 cd fikir-proje-bankasi
 ```
 
-2. **Environment dosyasını oluşturun:**
+### 2. Docker ile Çalıştırın
 ```bash
-cp .env.example .env
-# .env dosyasını düzenleyin
-```
-
-3. **Docker ile başlatın:**
-```bash
+# Tüm servisleri başlat
 docker-compose up --build
+
+# Arka planda çalıştır
+docker-compose up -d --build
 ```
 
-4. **Uygulamaya erişin:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- API Test: http://localhost:5000/api/test
+### 3. Veritabanını Doldurun (İsteğe Bağlı)
+```bash
+# Örnek verileri ekle
+docker-compose exec backend npm run seed
+```
+
+## 📖 API Dokümantasyonu
+
+Swagger UI ile API dokümantasyonuna erişim:
+- **Local**: http://localhost:5000/api-docs
+- **Production**: https://fikir-proje-bankasi.onrender.com/api-docs
 
 ## 🔧 Geliştirme
 
@@ -67,23 +75,79 @@ npm install
 npm run dev
 ```
 
-### Frontend Geliştirme
+### Veritabanı Seed
 ```bash
-cd web
-npm install
-npm start
+cd backend
+npm run seed
 ```
 
-### API Endpoints
+## 📊 Proje Modeli
 
-- `GET /` - Ana sayfa
-- `GET /api/test` - API test endpoint
-- `GET /api/health` - Sistem durumu
+```javascript
+{
+  baslik: String,           // Proje başlığı (zorunlu)
+  aciklama: String,         // Proje açıklaması (zorunlu)
+  kategori: String,         // Teknoloji, Sağlık, Eğitim, Çevre, Sosyal, Diğer
+  durum: String,           // Taslak, Aktif, Tamamlandı, İptal
+  oncelik: String,         // Düşük, Orta, Yüksek, Kritik
+  baslangicTarihi: Date,   // Proje başlangıç tarihi
+  bitisTarihi: Date,       // Proje bitiş tarihi
+  butce: Number,           // Proje bütçesi
+  etiketler: [String],     // Proje etiketleri
+  olusturanKisi: String,   // Oluşturan kişi (zorunlu)
+  aktif: Boolean,          // Aktif durumu
+  createdAt: Date,         // Oluşturulma tarihi
+  updatedAt: Date          // Güncellenme tarihi
+}
+```
+
+## 🌐 Servis URL'leri
+
+- **Backend API**: http://localhost:5000
+- **Frontend**: http://localhost:3000
+- **MongoDB**: Backend container içinde (localhost:27017)
+- **Swagger Docs**: http://localhost:5000/api-docs
+
+## 📝 Örnek API Kullanımı
+
+### Yeni Proje Oluştur
+```bash
+curl -X POST http://localhost:5000/api/projeler \
+  -H "Content-Type: application/json" \
+  -d '{
+    "baslik": "Yeni Proje",
+    "aciklama": "Proje açıklaması",
+    "kategori": "Teknoloji",
+    "durum": "Aktif",
+    "oncelik": "Orta",
+    "olusturanKisi": "John Doe"
+  }'
+```
+
+### Projeleri Listele
+```bash
+curl http://localhost:5000/api/projeler
+```
+
+### Kategori Filtrele
+```bash
+curl "http://localhost:5000/api/projeler?kategori=Teknoloji"
+```
+
+## 🔍 Filtreleme ve Arama
+
+API aşağıdaki query parametrelerini destekler:
+
+- `sayfa`: Sayfa numarası (varsayılan: 1)
+- `limit`: Sayfa başına kayıt sayısı (varsayılan: 10)
+- `kategori`: Kategori filtresi
+- `durum`: Durum filtresi
+- `arama`: Başlık ve açıklamada metin arama
 
 ## 🐳 Docker Komutları
 
 ```bash
-# Tüm servisleri başlat
+# Servisleri başlat
 docker-compose up
 
 # Arka planda çalıştır
@@ -99,61 +163,51 @@ docker-compose logs -f
 docker-compose logs -f backend
 ```
 
-## 🌍 Environment Variables
+## 📁 Proje Yapısı
 
-`.env` dosyasında aşağıdaki değişkenleri tanımlayın:
-
-```env
-NODE_ENV=development
-PORT=5000
-MONGO_URI=mongodb://mongo:27017/myappdb
-JWT_SECRET=supersecretkey
-REACT_APP_API_URL=http://localhost:5000/api
+```
+fikir-proje-bankasi/
+├── backend/
+│   ├── controllers/
+│   │   └── projeController.js
+│   ├── middleware/
+│   │   └── validation.js
+│   ├── models/
+│   │   └── Proje.js
+│   ├── routes/
+│   │   └── projeler.js
+│   ├── seed/
+│   │   └── seedData.js
+│   ├── Dockerfile (MongoDB dahil)
+│   ├── index.js
+│   └── package.json
+├── web/
+│   ├── src/
+│   ├── Dockerfile
+│   └── package.json
+├── docker-compose.yml (2 servis)
+└── README.md
 ```
 
-## 📊 Sistem Durumu
+## 🐳 Docker Yapısı
 
-Uygulama başlatıldığında, frontend'de sistem durumu görüntülenir:
-- ✅ Frontend durumu
-- ✅ Backend API bağlantısı
-- ✅ MongoDB bağlantısı
-
-## 🔄 Git Workflow
-
-- `develop` - Geliştirme branch'i
-- `main` - Production branch'i
-
-## 🚀 Deployment
-
-### Render Deployment
-
-1. Render'da yeni bir "Docker Compose" servisi oluşturun
-2. GitHub repository'nizi bağlayın
-3. Environment variables'ları ayarlayın
-4. Deploy edin
-
-### Environment Variables (Production)
-
-```env
-NODE_ENV=production
-PORT=5000
-MONGO_URI=<production-mongodb-uri>
-JWT_SECRET=<secure-jwt-secret>
-REACT_APP_API_URL=<production-api-url>
-```
-
-## 📝 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
+- **Backend Container**: Node.js + MongoDB (tek container)
+- **Web Container**: React.js
+- **Veri Kalıcılığı**: MongoDB verileri volume ile saklanır
 
 ## 🤝 Katkıda Bulunma
 
-1. Fork edin
+1. Fork yapın
 2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit edin (`git commit -m 'Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing-feature`)
+3. Commit yapın (`git commit -m 'Add amazing feature'`)
+4. Push yapın (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 📞 İletişim
 
-Proje hakkında sorularınız için issue açabilirsiniz.
+- **Email**: destek@fikirprojebankasi.com
+- **Proje Linki**: [https://github.com/username/fikir-proje-bankasi](https://github.com/username/fikir-proje-bankasi)
