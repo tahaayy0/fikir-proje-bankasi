@@ -120,8 +120,6 @@ const connectDB = async () => {
       useUnifiedTopology: true,
       serverSelectionTimeoutMS: 30000, // 30 saniye server seçim timeout
       socketTimeoutMS: 45000, // 45 saniye socket timeout
-      bufferMaxEntries: 0, // Buffer'ı devre dışı bırak
-      bufferCommands: false, // Buffer komutlarını devre dışı bırak
       maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
       minPoolSize: 1, // Minimum bağlantı havuzu boyutu
       maxIdleTimeMS: 30000, // Maksimum boşta kalma süresi
@@ -133,6 +131,19 @@ const connectDB = async () => {
     console.error('MongoDB connection error:', err);
     // Retry connection after 5 seconds
     setTimeout(connectDB, 5000);
+  }
+};
+
+// MongoDB bağlantı durumunu kontrol eden middleware
+const checkDBConnection = (req, res, next) => {
+  if (mongoose.connection.readyState === 1) {
+    next();
+  } else {
+    res.status(503).json({ 
+      success: false, 
+      message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
+      error: 'Database connection not ready'
+    });
   }
 };
 
@@ -265,7 +276,7 @@ app.get('/api/health', (req, res) => {
 app.options('*', cors(corsOptions));
 
 // API Routes
-app.use('/api/projeler', projeRoutes);
+app.use('/api/projeler', checkDBConnection, projeRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

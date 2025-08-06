@@ -6,6 +6,16 @@ const { validationResult } = require('express-validator');
 // @access  Public
 const tumProjeleriGetir = async (req, res) => {
   try {
+    // MongoDB bağlantı durumunu kontrol et
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
+        error: 'Database connection not ready'
+      });
+    }
+
     const { sayfa = 1, limit = 10, kategori, durum, arama } = req.query;
     
     // Filtreleme
@@ -173,6 +183,16 @@ const projeSil = async (req, res) => {
 // @access  Public
 const kategoriIstatistikleri = async (req, res) => {
   try {
+    // MongoDB bağlantı durumunu kontrol et
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
+        error: 'Database connection not ready'
+      });
+    }
+
     // Timeout süresini artır ve daha basit bir sorgu kullan
     const istatistikler = await Proje.aggregate([
       { $match: { aktif: true } },

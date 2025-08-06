@@ -10,7 +10,6 @@ function App() {
     aciklama: '',
     dosyaLink: ''
   });
-  const [apiStatus, setApiStatus] = useState('loading');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -22,20 +21,7 @@ function App() {
     }));
   };
 
-  // API durumunu kontrol et
-  useEffect(() => {
-    const checkApiStatus = async () => {
-      try {
-        await apiService.healthCheck();
-        setApiStatus('success');
-      } catch (error) {
-        setApiStatus('error');
-        console.error('API Error:', error);
-      }
-    };
 
-    checkApiStatus();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
