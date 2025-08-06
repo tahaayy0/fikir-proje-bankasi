@@ -110,17 +110,24 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// MongoDB Connection
-const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/myappdb';
+// MongoDB Connection - Render'da farklı environment variable isimleri kullanılıyor olabilir
+const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/myappdb';
 
 const connectDB = async () => {
   try {
-    console.log('MongoDB bağlantısı kuruluyor...', mongoURI);
+    console.log('MongoDB bağlantısı kuruluyor...');
+    console.log('Environment variables:');
+    console.log('MONGO_URI:', process.env.MONGO_URI ? 'Set' : 'Not set');
+    console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+    
+    // Render'da farklı environment variable isimleri kullanılıyor olabilir
+    const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/myappdb';
+    console.log('Using URI:', mongoURI);
     
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 60000, // 60 saniye server seçim timeout (Render için artırıldı)
+      serverSelectionTimeoutMS: 60000, // 60 saniye server seçim timeout
       socketTimeoutMS: 60000, // 60 saniye socket timeout
       maxPoolSize: 5, // Render için daha küçük pool
       minPoolSize: 1,
@@ -129,7 +136,6 @@ const connectDB = async () => {
       w: 'majority',
       // Render için ek optimizasyonlar
       bufferCommands: true, // Buffer'ı aktif et
-      bufferMaxEntries: 0,
       autoIndex: true,
       autoCreate: true
     });
