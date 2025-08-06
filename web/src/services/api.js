@@ -1,0 +1,72 @@
+import axios from 'axios';
+
+// API base URL'ini environment variable'dan al, yoksa default değer kullan
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
+// Production ortamında backend URL'ini otomatik olarak belirle
+const getApiUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Render production ortamında
+  if (window.location.hostname.includes('render.com')) {
+    return 'https://fikir-proje-bankasi-backend.onrender.com/api';
+  }
+  
+  // Local development
+  return 'http://localhost:5001/api';
+};
+
+// Axios instance oluştur
+const api = axios.create({
+  baseURL: getApiUrl(),
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true, // CORS için credentials gönder
+});
+
+// Request interceptor - her istekte çalışır
+api.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor - her cevapta çalışır
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('Response Error:', error.response?.status, error.response?.data);
+    return Promise.reject(error);
+  }
+);
+
+// API fonksiyonları
+export const apiService = {
+  // Health check
+  healthCheck: () => api.get('/health'),
+  
+  // Test endpoint
+  test: () => api.get('/test'),
+  
+  // Proje işlemleri
+  getProjeler: () => api.get('/projeler'),
+  getProje: (id) => api.get(`/projeler/${id}`),
+  createProje: (data) => api.post('/projeler', data),
+  updateProje: (id, data) => api.put(`/projeler/${id}`, data),
+  deleteProje: (id) => api.delete(`/projeler/${id}`),
+};
+
+export default api; 

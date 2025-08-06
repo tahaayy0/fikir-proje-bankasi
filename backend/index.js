@@ -25,11 +25,15 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`,
-        description: 'Development server'
+        url: 'http://localhost:5001',
+        description: 'Development server (Docker)'
       },
       {
-        url: 'https://fikir-proje-bankasi.onrender.com',
+        url: `http://localhost:${PORT}`,
+        description: 'Development server (Direct)'
+      },
+      {
+        url: 'https://fikir-proje-bankasi-backend.onrender.com',
         description: 'Production server'
       }
     ],
@@ -48,9 +52,54 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
+// CORS Configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'http://localhost:5001',
+    'http://127.0.0.1:5001',
+    'https://fikir-proje-bankasi.onrender.com',
+    'https://fikir-proje-bankasi-web.onrender.com',
+    'https://fikir-proje-bankasi-frontend.onrender.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+};
+
+// Helmet CSP Configuration for Swagger UI
+const helmetConfig = {
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "http://localhost:5000", "http://localhost:5001", "http://localhost:3000", "https://fikir-proje-bankasi-backend.onrender.com"],
+      frameSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  }
+};
+
 // Middleware
-app.use(helmet());
-app.use(cors());
+app.use(helmet(helmetConfig));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -80,8 +129,29 @@ const connectDB = async () => {
 
 connectDB();
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger UI with custom options
+const swaggerUiOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Fikir Proje Bankası API',
+  customfavIcon: '/favicon.ico',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    deepLinking: true,
+    tryItOutEnabled: true,
+    defaultModelsExpandDepth: 1,
+    defaultModelExpandDepth: 1,
+    docExpansion: 'list'
+  }
+};
+
+// Swagger UI route with CSP disabled
+app.use('/api-docs', (req, res, next) => {
+  // Disable CSP for Swagger UI
+  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http: https:;");
+  next();
+}, swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 // Routes
 const projeRoutes = require('./routes/projeler');
@@ -181,6 +251,9 @@ app.get('/api/health', (req, res) => {
     }
   });
 });
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // API Routes
 app.use('/api/projeler', projeRoutes);
