@@ -10,10 +10,6 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// JWT Secret - Production'da environment variable'dan al
-const JWT_SECRET = process.env.JWT_SECRET || 'fikir-proje-bankasi-jwt-secret-key-2025';
-process.env.JWT_SECRET = JWT_SECRET;
-
 // Swagger configuration
 const swaggerOptions = {
   definition: {
