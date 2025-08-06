@@ -173,15 +173,49 @@ const projeSil = async (req, res) => {
 // @access  Public
 const kategoriIstatistikleri = async (req, res) => {
   try {
+    // Timeout süresini artır ve daha basit bir sorgu kullan
     const istatistikler = await Proje.aggregate([
       { $match: { aktif: true } },
       { $group: { _id: '$kategori', sayi: { $sum: 1 } } },
       { $sort: { sayi: -1 } }
-    ]);
+    ], {
+      maxTimeMS: 30000, // 30 saniye timeout
+      allowDiskUse: true // Büyük veri setleri için disk kullanımına izin ver
+    });
 
     res.json({ success: true, data: istatistikler });
   } catch (error) {
     console.error('İstatistikler getirilirken hata:', error);
+    
+    // Eğer aggregation timeout olursa, alternatif yöntem kullan
+    if (error.message.includes('timed out') || error.message.includes('buffering timed out')) {
+      try {
+        console.log('Aggregation timeout, alternatif yöntem kullanılıyor...');
+        
+        // Basit find sorgusu ile istatistikleri hesapla
+        const kategoriler = ['Teknoloji', 'Sağlık', 'Eğitim', 'Çevre', 'Sosyal', 'Diğer'];
+        const istatistikler = [];
+        
+        for (const kategori of kategoriler) {
+          const sayi = await Proje.countDocuments({ 
+            aktif: true, 
+            kategori: kategori 
+          });
+          if (sayi > 0) {
+            istatistikler.push({ _id: kategori, sayi });
+          }
+        }
+        
+        // Sayıya göre sırala
+        istatistikler.sort((a, b) => b.sayi - a.sayi);
+        
+        res.json({ success: true, data: istatistikler });
+        return;
+      } catch (fallbackError) {
+        console.error('Fallback yöntem de başarısız:', fallbackError);
+      }
+    }
+    
     res.status(500).json({ 
       success: false, 
       message: 'İstatistikler getirilirken bir hata oluştu',

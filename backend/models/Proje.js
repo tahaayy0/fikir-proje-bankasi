@@ -72,5 +72,8 @@ projeSchema.virtual('sure').get(function() {
 // Index for better query performance
 projeSchema.index({ kategori: 1, durum: 1 });
 projeSchema.index({ baslik: 'text', aciklama: 'text' });
+projeSchema.index({ aktif: 1, kategori: 1 }); // İstatistikler için optimize edilmiş index
+projeSchema.index({ aktif: 1 }); // Aktif projeler için
+projeSchema.index({ createdAt: -1 }); // Tarih sıralaması için
 
 module.exports = mongoose.model('Proje', projeSchema); 

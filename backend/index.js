@@ -118,6 +118,15 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000, // 30 saniye server seçim timeout
+      socketTimeoutMS: 45000, // 45 saniye socket timeout
+      bufferMaxEntries: 0, // Buffer'ı devre dışı bırak
+      bufferCommands: false, // Buffer komutlarını devre dışı bırak
+      maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
+      minPoolSize: 1, // Minimum bağlantı havuzu boyutu
+      maxIdleTimeMS: 30000, // Maksimum boşta kalma süresi
+      retryWrites: true, // Yazma işlemlerini yeniden dene
+      w: 'majority' // Write concern
     });
     console.log('MongoDB connected successfully');
   } catch (err) {
