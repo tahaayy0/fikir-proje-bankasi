@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 import { apiService } from './services/api';
 import './App.css';
 
@@ -20,8 +25,6 @@ function App() {
       [name]: value
     }));
   };
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +72,7 @@ function App() {
     });
   };
 
-  return (
+  const HomePage = () => (
     <div className="app">
       {/* Toast Mesajı */}
       {showToast && (
@@ -247,6 +250,26 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

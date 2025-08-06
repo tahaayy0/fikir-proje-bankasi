@@ -10,6 +10,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// JWT Secret - Production'da environment variable'dan al
+const JWT_SECRET = process.env.JWT_SECRET || 'fikir-proje-bankasi-jwt-secret-key-2025';
+process.env.JWT_SECRET = JWT_SECRET;
+
 // Swagger configuration
 const swaggerOptions = {
   definition: {
@@ -111,6 +115,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // MongoDB Connection - Render'da farklı environment variable isimleri kullanılıyor olabilir
+// Eğer MONGO_URI yoksa veya Atlas bağlantısı çalışmıyorsa local MongoDB kullan
 const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/myappdb';
 
 const connectDB = async () => {
@@ -124,21 +129,31 @@ const connectDB = async () => {
     const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/myappdb';
     console.log('Using URI:', mongoURI);
     
-    await mongoose.connect(mongoURI, {
+    // MongoDB Atlas için özel ayarlar
+    const connectionOptions = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 60000, // 60 saniye server seçim timeout
-      socketTimeoutMS: 60000, // 60 saniye socket timeout
-      maxPoolSize: 5, // Render için daha küçük pool
+      serverSelectionTimeoutMS: 60000,
+      socketTimeoutMS: 60000,
+      maxPoolSize: 5,
       minPoolSize: 1,
       maxIdleTimeMS: 30000,
       retryWrites: true,
       w: 'majority',
-      // Render için ek optimizasyonlar
-      bufferCommands: true, // Buffer'ı aktif et
+      bufferCommands: true,
       autoIndex: true,
       autoCreate: true
-    });
+    };
+
+    // MongoDB Atlas için ek güvenlik ayarları
+    if (mongoURI.includes('mongodb+srv://')) {
+      connectionOptions.ssl = true;
+      connectionOptions.sslValidate = false; // Development için
+      connectionOptions.retryReads = true;
+      connectionOptions.retryWrites = true;
+    }
+
+    await mongoose.connect(mongoURI, connectionOptions);
     
     console.log('MongoDB connected successfully');
     console.log('Connection state:', mongoose.connection.readyState);
@@ -146,6 +161,37 @@ const connectDB = async () => {
     
   } catch (err) {
     console.error('MongoDB connection error:', err);
+    
+    // Eğer MongoDB Atlas bağlantısı başarısız olursa, local MongoDB'yi dene
+    if (mongoURI.includes('mongodb+srv://') && !mongoURI.includes('localhost')) {
+      console.log('MongoDB Atlas bağlantısı başarısız, local MongoDB deneniyor...');
+      try {
+        await mongoose.connect('mongodb://localhost:27017/myappdb', {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 10000
+        });
+        console.log('Local MongoDB connected successfully');
+        return;
+      } catch (localErr) {
+        console.error('Local MongoDB connection also failed:', localErr);
+      }
+    }
+    
+    // Render'da MongoDB servisi yoksa, in-memory database kullan
+    if (process.env.NODE_ENV === 'production' && !process.env.MONGO_URI) {
+      console.log('Production ortamında MongoDB URI yok, in-memory database kullanılıyor...');
+      try {
+        // Basit bir in-memory storage (geçici çözüm)
+        global.inMemoryDB = global.inMemoryDB || [];
+        console.log('In-memory database initialized');
+        return;
+      } catch (memErr) {
+        console.error('In-memory database failed:', memErr);
+      }
+    }
+    
     console.log('Retrying connection in 10 seconds...');
     // Retry connection after 10 seconds
     setTimeout(connectDB, 10000);
@@ -207,6 +253,7 @@ app.use('/api-docs', (req, res, next) => {
 
 // Routes
 const projeRoutes = require('./routes/projeler');
+const adminRoutes = require('./routes/admin');
 
 // Basic route
 app.get('/', (req, res) => {
@@ -309,6 +356,7 @@ app.options('*', cors(corsOptions));
 
 // API Routes
 app.use('/api/projeler', checkDBConnection, projeRoutes);
+app.use('/api/admin', checkDBConnection, adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

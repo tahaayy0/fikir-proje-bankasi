@@ -67,6 +67,24 @@ export const apiService = {
   createProje: (data) => api.post('/projeler', data),
   updateProje: (id, data) => api.put(`/projeler/${id}`, data),
   deleteProje: (id) => api.delete(`/projeler/${id}`),
+  
+  // Admin authentication işlemleri
+  adminLogin: (mail, sifre) => api.post('/admin/login', { mail, sifre }),
+  adminRegister: (adminData) => api.post('/admin/register', adminData),
+  adminLogout: () => api.post('/admin/logout'),
+  getAdminProfile: () => api.get('/admin/profile'),
+  updateAdminProfile: (data) => api.put('/admin/profile', data),
+  changeAdminPassword: (data) => api.put('/admin/change-password', data),
+  
+  // Token yönetimi
+  setAuthToken: (token) => {
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  },
+  removeAuthToken: () => {
+    delete api.defaults.headers.common['Authorization'];
+  }
 };
 
 export default api; 

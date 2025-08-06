@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed": "node seed/seedData.js",
+    "seed:atlas": "node seedAtlas.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["nodejs", "express", "mongodb", "api"],

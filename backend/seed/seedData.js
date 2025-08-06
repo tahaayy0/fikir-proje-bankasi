@@ -1,4 +1,5 @@
 const Proje = require('../models/Proje');
+const { seedAdmin } = require('./adminSeed');
 const mongoose = require('mongoose');
 
 const ornekProjeler = [
@@ -102,6 +103,9 @@ const ornekProjeler = [
 
 const seedDatabase = async () => {
   try {
+    // Admin'i seed et
+    await seedAdmin();
+    
     // Mevcut projeleri temizle
     await Proje.deleteMany({});
     console.log('Mevcut projeler temizlendi');
