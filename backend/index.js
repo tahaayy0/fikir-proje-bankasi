@@ -115,29 +115,55 @@ const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/myappdb';
 
 const connectDB = async () => {
   try {
+    console.log('MongoDB bağlantısı kuruluyor...', mongoURI);
+    
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // 30 saniye server seçim timeout
-      socketTimeoutMS: 45000, // 45 saniye socket timeout
-      maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
-      minPoolSize: 1, // Minimum bağlantı havuzu boyutu
-      maxIdleTimeMS: 30000, // Maksimum boşta kalma süresi
-      retryWrites: true, // Yazma işlemlerini yeniden dene
-      w: 'majority' // Write concern
+      serverSelectionTimeoutMS: 60000, // 60 saniye server seçim timeout (Render için artırıldı)
+      socketTimeoutMS: 60000, // 60 saniye socket timeout
+      maxPoolSize: 5, // Render için daha küçük pool
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000,
+      retryWrites: true,
+      w: 'majority',
+      // Render için ek optimizasyonlar
+      bufferCommands: true, // Buffer'ı aktif et
+      bufferMaxEntries: 0,
+      autoIndex: true,
+      autoCreate: true
     });
+    
     console.log('MongoDB connected successfully');
+    console.log('Connection state:', mongoose.connection.readyState);
+    console.log('Database name:', mongoose.connection.name);
+    
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    // Retry connection after 5 seconds
-    setTimeout(connectDB, 5000);
+    console.log('Retrying connection in 10 seconds...');
+    // Retry connection after 10 seconds
+    setTimeout(connectDB, 10000);
   }
 };
 
 // MongoDB bağlantı durumunu kontrol eden middleware
 const checkDBConnection = (req, res, next) => {
+  // Render üzerinde bağlantı biraz zaman alabiliyor, bu yüzden daha esnek olalım
   if (mongoose.connection.readyState === 1) {
     next();
+  } else if (mongoose.connection.readyState === 2) {
+    // Bağlantı kuruluyor, biraz bekle
+    setTimeout(() => {
+      if (mongoose.connection.readyState === 1) {
+        next();
+      } else {
+        res.status(503).json({ 
+          success: false, 
+          message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
+          error: 'Database connection not ready'
+        });
+      }
+    }, 2000); // 2 saniye bekle
   } else {
     res.status(503).json({ 
       success: false, 

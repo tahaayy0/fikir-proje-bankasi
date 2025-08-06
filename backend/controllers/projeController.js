@@ -9,10 +9,12 @@ const tumProjeleriGetir = async (req, res) => {
     // MongoDB bağlantı durumunu kontrol et
     const mongoose = require('mongoose');
     if (mongoose.connection.readyState !== 1) {
+      console.log('Database not ready, state:', mongoose.connection.readyState);
       return res.status(503).json({ 
         success: false, 
         message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
-        error: 'Database connection not ready'
+        error: 'Database connection not ready',
+        state: mongoose.connection.readyState
       });
     }
 
@@ -186,10 +188,12 @@ const kategoriIstatistikleri = async (req, res) => {
     // MongoDB bağlantı durumunu kontrol et
     const mongoose = require('mongoose');
     if (mongoose.connection.readyState !== 1) {
+      console.log('Database not ready, state:', mongoose.connection.readyState);
       return res.status(503).json({ 
         success: false, 
         message: 'Veritabanı bağlantısı henüz hazır değil. Lütfen birkaç saniye sonra tekrar deneyin.',
-        error: 'Database connection not ready'
+        error: 'Database connection not ready',
+        state: mongoose.connection.readyState
       });
     }
 
