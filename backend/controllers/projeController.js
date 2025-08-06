@@ -1,6 +1,6 @@
-const Proje = require('../models/proje');
-const Oy = require('../models/oy');
-const BasvuruTakip = require('../models/basvuruTakip');
+const Proje = require('../models/Project');
+const Oy = require('../models/Vote');
+const BasvuruTakip = require('../models/ApplicationTracking');
 const { validationResult } = require('express-validator');
 
 // @desc    Tüm projeleri getir

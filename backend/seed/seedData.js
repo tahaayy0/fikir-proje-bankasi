@@ -1,5 +1,5 @@
-const Proje = require('../models/proje');
-const BasvuruTakip = require('../models/basvuruTakip');
+const Proje = require('../models/Project');
+const BasvuruTakip = require('../models/ApplicationTracking');
 const { seedAdmin } = require('./adminSeed');
 const mongoose = require('mongoose');
 

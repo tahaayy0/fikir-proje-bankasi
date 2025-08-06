@@ -1,4 +1,4 @@
-const Admin = require('../models/admin');
+const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 
 // JWT token oluşturma fonksiyonu
