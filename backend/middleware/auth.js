@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
+const Admin = require('../models/admin');
 
 // JWT token doğrulama middleware'i
 const authenticateToken = async (req, res, next) => {
