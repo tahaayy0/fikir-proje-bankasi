@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const oySchema = new mongoose.Schema({
   projeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Proje',
+    ref: 'Project',
     required: [true, 'Proje ID zorunludur']
   },
   kullaniciIP: {
@@ -73,13 +73,13 @@ oySchema.index({ projeId: 1, kullaniciEmail: 1 }, { sparse: true });
 
 // Oy verildikten sonra projenin ortalama oyunu güncelle
 oySchema.post('save', async function(doc) {
-  const Proje = mongoose.model('Proje');
+  const Project = mongoose.model('Project');
   
   try {
-    const proje = await Proje.findById(doc.projeId);
+    const proje = await Project.findById(doc.projeId);
     if (proje) {
       // Tüm aktif oyları al
-      const oylar = await mongoose.model('Oy').find({
+      const oylar = await mongoose.model('Vote').find({
         projeId: doc.projeId,
         aktif: true
       });
@@ -89,7 +89,7 @@ oySchema.post('save', async function(doc) {
       const ortalamaOy = oylar.length > 0 ? toplamOy / oylar.length : 0;
       
       // Projeyi güncelle
-      await Proje.findByIdAndUpdate(doc.projeId, {
+      await Project.findByIdAndUpdate(doc.projeId, {
         oySayisi: oylar.length,
         toplamOy: toplamOy,
         ortalamaOy: Math.round(ortalamaOy * 10) / 10 // 1 ondalık basamak
@@ -100,4 +100,4 @@ oySchema.post('save', async function(doc) {
   }
 });
 
-module.exports = mongoose.model('Oy', oySchema); 
+module.exports = mongoose.model('Vote', oySchema); 

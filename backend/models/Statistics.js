@@ -72,7 +72,7 @@ const istatistikSchema = new mongoose.Schema({
   populerProjeler: [{
     projeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Proje'
+      ref: 'Project'
     },
     baslik: String,
     ortalamaOy: Number,
@@ -94,29 +94,29 @@ istatistikSchema.index({ aktif: 1, tur: 1 });
 
 // İstatistik oluşturma/güncelleme metodu
 istatistikSchema.statics.guncelleIstatistikler = async function() {
-  const Proje = mongoose.model('Proje');
-  const Oy = mongoose.model('Oy');
+  const Project = mongoose.model('Project');
+  const Vote = mongoose.model('Vote');
   
   try {
     const bugun = new Date();
     bugun.setHours(0, 0, 0, 0);
     
     // Kategori istatistikleri
-    const kategoriIstatistikleri = await Proje.aggregate([
+    const kategoriIstatistikleri = await Project.aggregate([
       { $match: { aktif: true } },
       { $group: { _id: '$kategori', sayi: { $sum: 1 } } },
       { $sort: { sayi: -1 } }
     ]);
     
     // Durum istatistikleri
-    const durumIstatistikleri = await Proje.aggregate([
+    const durumIstatistikleri = await Project.aggregate([
       { $match: { aktif: true } },
       { $group: { _id: '$durum', sayi: { $sum: 1 } } },
       { $sort: { sayi: -1 } }
     ]);
     
     // En popüler projeler
-    const populerProjeler = await Proje.find({ 
+    const populerProjeler = await Project.find({ 
       aktif: true, 
       durum: 'Onaylandı' 
     })
@@ -125,9 +125,9 @@ istatistikSchema.statics.guncelleIstatistikler = async function() {
     .select('baslik ortalamaOy oySayisi');
     
     // Toplam sayılar
-    const toplamProje = await Proje.countDocuments({ aktif: true, tur: 'proje' });
-    const toplamFikir = await Proje.countDocuments({ aktif: true, tur: 'fikir' });
-    const toplamOy = await Oy.countDocuments({ aktif: true });
+    const toplamProje = await Project.countDocuments({ aktif: true, tur: 'proje' });
+    const toplamFikir = await Project.countDocuments({ aktif: true, tur: 'fikir' });
+    const toplamOy = await Vote.countDocuments({ aktif: true });
     
     // İstatistik verilerini hazırla
     const veriler = {
@@ -179,4 +179,4 @@ istatistikSchema.statics.guncelleIstatistikler = async function() {
   }
 };
 
-module.exports = mongoose.model('Istatistik', istatistikSchema); 
+module.exports = mongoose.model('Statistics', istatistikSchema); 

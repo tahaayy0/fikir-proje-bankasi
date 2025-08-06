@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const basvuruTakipSchema = new mongoose.Schema({
   projeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Proje',
+    ref: 'Project',
     required: [true, 'Proje ID zorunludur']
   },
   email: {
@@ -73,4 +73,4 @@ basvuruTakipSchema.index({ email: 1, aktif: 1 });
 basvuruTakipSchema.index({ projeId: 1 });
 basvuruTakipSchema.index({ sonGuncelleme: -1 });
 
-module.exports = mongoose.model('BasvuruTakip', basvuruTakipSchema); 
+module.exports = mongoose.model('ApplicationTracking', basvuruTakipSchema); 
