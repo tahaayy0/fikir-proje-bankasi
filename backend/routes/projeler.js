@@ -11,7 +11,8 @@ const {
   basvuruTakipGetir,
   moderationBasvurularGetir,
   basvuruDurumGuncelle,
-  oylamaProjeleriGetir
+  oylamaProjeleriGetir,
+  testFikirlerGetir
 } = require('../controllers/projeController');
 const { projeValidasyon, oyValidasyon } = require('../middleware/validation');
 
@@ -870,4 +871,9 @@ router.put('/moderation/basvurular/:id', basvuruDurumGuncelle);
  *       500:
  *         description: Sunucu hatası
  */
+router.get('/oylamalar', oylamaProjeleriGetir);
+
+// Test endpoint
+router.get('/test/fikirler', testFikirlerGetir);
+
 module.exports = router; 

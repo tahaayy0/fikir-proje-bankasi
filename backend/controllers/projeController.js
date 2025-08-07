@@ -498,23 +498,73 @@ const moderationBasvurularGetir = async (req, res) => {
   try {
     const { durum, tur, kategori, sayfa = 1, limit = 10 } = req.query;
 
-    let filter = {};
-    if (durum && durum !== 'Tümü') filter.durum = durum;
-    if (tur && tur !== 'Tümü') filter.tur = tur;
-    if (kategori && kategori !== 'Tümü') filter.kategori = kategori;
+    console.log('Moderation parametreleri:', { durum, tur, kategori, sayfa, limit });
 
-    const projeler = await Proje.find(filter)
+    let projeFilter = {};
+    let fikirFilter = {};
+
+    // Durum filtresi
+    if (durum && durum !== 'Tümü') {
+      projeFilter.durum = durum;
+      fikirFilter.durum = durum;
+    }
+
+    // Kategori filtresi
+    if (kategori && kategori !== 'Tümü') {
+      projeFilter.kategori = kategori;
+      fikirFilter.kategori = kategori;
+    }
+
+    // Tür filtresi
+    if (tur && tur !== 'Tümü') {
+      if (tur === 'proje') {
+        projeFilter.tur = 'proje';
+      } else if (tur === 'fikir') {
+        projeFilter.tur = 'fikir';
+      }
+    }
+
+    console.log('Proje filtresi:', projeFilter);
+    console.log('Fikir filtresi:', fikirFilter);
+
+    // Projeleri getir
+    const projeler = await Proje.find(projeFilter)
       .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((sayfa - 1) * limit)
       .exec();
 
-    const toplam = await Proje.countDocuments(filter);
+    // Fikirleri getir (Idea modelinden)
+    const fikirler = await Idea.find(fikirFilter)
+      .sort({ createdAt: -1 })
+      .exec();
+
+    console.log('Bulunan projeler:', projeler.length);
+    console.log('Bulunan fikirler:', fikirler.length);
+    console.log('Fikir örnekleri:', fikirler.map(f => ({ id: f._id, baslik: f.baslik, durum: f.durum })));
+
+    // Projeler ve fikirleri birleştir
+    let tumBasvurular = [
+      ...projeler.map(p => ({ ...p.toObject(), tip: 'proje' })),
+      ...fikirler.map(f => ({ ...f.toObject(), tip: 'fikir' }))
+    ];
+
+    // Tarihe göre sırala
+    tumBasvurular.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Sayfalama uygula
+    const toplam = tumBasvurular.length;
+    const baslangic = (sayfa - 1) * limit;
+    const bitis = baslangic + limit;
+    const sayfalanmisBasvurular = tumBasvurular.slice(baslangic, bitis);
+
+    console.log('Toplam başvuru sayısı:', toplam);
+    console.log('Proje sayısı:', projeler.length);
+    console.log('Fikir sayısı:', fikirler.length);
+    console.log('Birleştirilmiş başvurular:', sayfalanmisBasvurular.map(b => ({ id: b._id, baslik: b.baslik, tip: b.tip })));
 
     res.json({
       success: true,
       data: {
-        projeler,
+        projeler: sayfalanmisBasvurular,
         toplamSayfa: Math.ceil(toplam / limit),
         mevcutSayfa: parseInt(sayfa),
         toplamProje: toplam
@@ -650,6 +700,32 @@ const oylamaProjeleriGetir = async (req, res) => {
   }
 };
 
+// @desc    Test endpoint - Tüm fikirleri getir
+// @route   GET /api/test/fikirler
+// @access  Public
+const testFikirlerGetir = async (req, res) => {
+  try {
+    const fikirler = await Idea.find({});
+    console.log('Test: Tüm fikirler:', fikirler.length);
+    console.log('Test: Fikir detayları:', fikirler.map(f => ({ id: f._id, baslik: f.baslik, durum: f.durum })));
+    
+    res.json({
+      success: true,
+      data: {
+        fikirler,
+        toplam: fikirler.length
+      }
+    });
+  } catch (error) {
+    console.error('Test fikirler getirilirken hata:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test fikirler getirilirken hata oluştu',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   tumProjeleriGetir,
   projeGetir,
@@ -662,5 +738,6 @@ module.exports = {
   basvuruTakipGetir,
   moderationBasvurularGetir,
   basvuruDurumGuncelle,
-  oylamaProjeleriGetir
+  oylamaProjeleriGetir,
+  testFikirlerGetir
 }; 

@@ -35,11 +35,18 @@ const Moderation = () => {
       if (filters.tur !== 'Tümü') params.append('tur', filters.tur);
       if (filters.kategori !== 'Tümü') params.append('kategori', filters.kategori);
       
+      console.log('Moderation API parametreleri:', params.toString());
+      
       // Gerçek API çağrısı
       const response = await apiService.getModerationBasvurular(params.toString());
       
+      console.log('Moderation API yanıtı:', response.data);
+      
       if (response.data && response.data.success) {
-        setBasvurular(response.data.data.projeler || []);
+        const basvurularData = response.data.data.projeler || [];
+        console.log('Gelen başvurular:', basvurularData);
+        console.log('Başvuru türleri:', basvurularData.map(b => ({ id: b._id, tur: b.tur, tip: b.tip, baslik: b.baslik })));
+        setBasvurular(basvurularData);
       } else {
         console.error('API yanıtı başarısız:', response.data);
         setBasvurular([]);
@@ -101,11 +108,13 @@ const Moderation = () => {
     );
   };
 
-  const getTurIcon = (tur) => {
+  const getTurIcon = (tur, tip) => {
+    if (tip === 'fikir') return 'fas fa-lightbulb';
     return tur === 'fikir' ? 'fas fa-lightbulb' : 'fas fa-rocket';
   };
 
-  const getTurLabel = (tur) => {
+  const getTurLabel = (tur, tip) => {
+    if (tip === 'fikir') return 'Fikir';
     return tur === 'fikir' ? 'Fikir' : 'Proje';
   };
 
@@ -185,9 +194,9 @@ const Moderation = () => {
                 <div key={basvuru._id} className="moderation-card">
                   <div className="card-header">
                     <div className="baslik-bilgi">
-                      <i className={getTurIcon(basvuru.tur)}></i>
+                      <i className={getTurIcon(basvuru.tur, basvuru.tip)}></i>
                       <h3>{basvuru.baslik}</h3>
-                      <span className="tur-label">{getTurLabel(basvuru.tur)}</span>
+                      <span className="tur-label">{getTurLabel(basvuru.tur, basvuru.tip)}</span>
                     </div>
                     {getDurumBadge(basvuru.durum)}
                   </div>

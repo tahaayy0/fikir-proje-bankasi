@@ -1,16 +1,14 @@
 import axios from 'axios';
 
 // API base URL'ini environment variable'dan al, yoksa default değer kullan
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-
-// Production ortamında backend URL'ini otomatik olarak belirle
 const getApiUrl = () => {
+  // Environment variable varsa onu kullan
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
   
   // Render production ortamında
-  if (window.location.hostname.includes('render.com')) {
+  if (window.location.hostname.includes('render.com') || window.location.hostname.includes('onrender.com')) {
     return 'https://fikir-proje-bankasi-backend.onrender.com/api';
   }
   
@@ -18,9 +16,15 @@ const getApiUrl = () => {
   return 'http://localhost:5001/api';
 };
 
+const API_BASE_URL = getApiUrl();
+
+console.log('API Base URL:', API_BASE_URL);
+console.log('Current hostname:', window.location.hostname);
+console.log('Environment:', process.env.NODE_ENV);
+
 // Axios instance oluştur
 const api = axios.create({
-  baseURL: getApiUrl(),
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
