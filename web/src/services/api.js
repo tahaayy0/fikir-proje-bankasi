@@ -68,6 +68,17 @@ export const apiService = {
   updateProje: (id, data) => api.put(`/projeler/${id}`, data),
   deleteProje: (id) => api.delete(`/projeler/${id}`),
   
+  // Fikir işlemleri
+  createFikir: (data) => api.post('/fikirler', data),
+  
+  // Moderation işlemleri
+  getModerationBasvurular: (params = '') => api.get(`/projeler/moderation/basvurular?${params}`),
+  updateBasvuruDurum: (id, data) => api.put(`/projeler/moderation/basvurular/${id}`, data),
+  
+  // Oylama işlemleri
+  getOylamaProjeleri: (params = '') => api.get(`/oylamalar?${params}`),
+  oyVer: (id, data) => api.post(`/projeler/${id}/oy`, data),
+  
   // Admin authentication işlemleri
   adminLogin: (mail, sifre) => api.post('/admin/login', { mail, sifre }),
   adminRegister: (adminData) => api.post('/admin/register', adminData),

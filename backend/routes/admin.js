@@ -11,15 +11,13 @@ const validateLogin = [
 ];
 
 const validateRegister = [
-  body('isim').trim().isLength({ min: 2, max: 50 }).withMessage('İsim 2-50 karakter arasında olmalıdır'),
-  body('soyisim').trim().isLength({ min: 2, max: 50 }).withMessage('Soyisim 2-50 karakter arasında olmalıdır'),
+  body('ad').trim().isLength({ min: 2, max: 100 }).withMessage('Ad 2-100 karakter arasında olmalıdır'),
   body('mail').isEmail().withMessage('Geçerli bir e-posta adresi giriniz'),
   body('sifre').isLength({ min: 6 }).withMessage('Şifre en az 6 karakter olmalıdır')
 ];
 
 const validateProfileUpdate = [
-  body('isim').optional().trim().isLength({ min: 2, max: 50 }).withMessage('İsim 2-50 karakter arasında olmalıdır'),
-  body('soyisim').optional().trim().isLength({ min: 2, max: 50 }).withMessage('Soyisim 2-50 karakter arasında olmalıdır'),
+  body('ad').optional().trim().isLength({ min: 2, max: 100 }).withMessage('Ad 2-100 karakter arasında olmalıdır'),
   body('mail').optional().isEmail().withMessage('Geçerli bir e-posta adresi giriniz')
 ];
 
@@ -29,13 +27,13 @@ const validatePasswordChange = [
 ];
 
 // Public routes (authentication gerekmez)
-router.post('/register', validateRegister, adminController.register);
-router.post('/login', validateLogin, adminController.login);
+router.post('/register', validateRegister, adminController.adminRegister);
+router.post('/login', validateLogin, adminController.adminLogin);
 
 // Protected routes (authentication gerekir)
-router.get('/profile', authenticateToken, requireAdmin, adminController.getProfile);
-router.put('/profile', authenticateToken, requireAdmin, validateProfileUpdate, adminController.updateProfile);
-router.put('/change-password', authenticateToken, requireAdmin, validatePasswordChange, adminController.changePassword);
-router.post('/logout', authenticateToken, requireAdmin, adminController.logout);
+router.get('/profile', authenticateToken, requireAdmin, adminController.getAdminProfile);
+router.put('/profile', authenticateToken, requireAdmin, validateProfileUpdate, adminController.updateAdminProfile);
+router.put('/change-password', authenticateToken, requireAdmin, validatePasswordChange, adminController.changeAdminPassword);
+router.post('/logout', authenticateToken, requireAdmin, adminController.adminLogout);
 
 module.exports = router; 

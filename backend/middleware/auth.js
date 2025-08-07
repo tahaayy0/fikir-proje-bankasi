@@ -15,10 +15,10 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Token'ı doğrula
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     
     // Admin'i veritabanından kontrol et
-    const admin = await Admin.findById(decoded.adminId).select('-sifre');
+    const admin = await Admin.findById(decoded.id).select('-sifre');
     
     if (!admin || !admin.aktif) {
       return res.status(401).json({

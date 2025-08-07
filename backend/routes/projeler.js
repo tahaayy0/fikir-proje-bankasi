@@ -870,6 +870,4 @@ router.put('/moderation/basvurular/:id', basvuruDurumGuncelle);
  *       500:
  *         description: Sunucu hatası
  */
-router.get('/oylamalar', oylamaProjeleriGetir);
-
 module.exports = router; 

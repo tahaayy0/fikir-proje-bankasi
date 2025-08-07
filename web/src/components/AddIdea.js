@@ -38,6 +38,50 @@ const FikirEkle = () => {
     }));
   };
 
+  // Türkçe karakterleri temizleyen fonksiyon
+  const turkceKarakterTemizle = (text) => {
+    return text
+      .replace(/ğ/g, 'g')
+      .replace(/Ğ/g, 'G')
+      .replace(/ü/g, 'u')
+      .replace(/Ü/g, 'U')
+      .replace(/ş/g, 's')
+      .replace(/Ş/g, 'S')
+      .replace(/ı/g, 'i')
+      .replace(/İ/g, 'I')
+      .replace(/ö/g, 'o')
+      .replace(/Ö/g, 'O')
+      .replace(/ç/g, 'c')
+      .replace(/Ç/g, 'C')
+      .replace(/[^a-zA-Z0-9@._-]/g, ''); // Sadece alfanumerik ve email karakterleri
+  };
+
+  // Otomatik doldurma fonksiyonu
+  const otomatikDoldur = () => {
+    const ornekVeriler = {
+      baslik: 'Akıllı Şehir Trafik Yönetim Sistemi',
+      problem: 'Büyük şehirlerde trafik sıkışıklığı ve zaman kaybı yaşanıyor. Mevcut trafik sistemleri yeterince akıllı değil ve gerçek zamanlı optimizasyon yapamıyor.',
+      hedefKitle: 'Büyük şehirlerde yaşayan sürücüler, toplu taşıma kullanıcıları, şehir yönetimleri ve trafik polisleri',
+      olgunlukSeviyesi: 'fikir',
+      kategori: 'Teknoloji',
+      kaynaklar: 'IoT sensörleri, yapay zeka algoritmaları, mobil uygulama geliştirme, şehir altyapısı entegrasyonu',
+      kisaAciklama: 'Yapay zeka destekli trafik sensörleri ile gerçek zamanlı trafik optimizasyonu sağlayan akıllı şehir sistemi',
+      dosyaLink: 'https://example.com/traffic-system-demo',
+      adSoyad: 'Ahmet Yilmaz',
+      email: 'ahmet.yilmaz@example.com',
+      telefon: '0555 123 45 67'
+    };
+
+    // Email'i Türkçe karakter içermeyecek şekilde temizle
+    ornekVeriler.email = turkceKarakterTemizle(ornekVeriler.email);
+    
+    setFormData(ornekVeriler);
+    setMessage({ 
+      type: 'success', 
+      text: 'Form otomatik olarak dolduruldu! Gerekirse verileri düzenleyebilirsiniz.' 
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -53,7 +97,7 @@ const FikirEkle = () => {
         createdAt: new Date()
       };
 
-      await apiService.createProje(fikirData);
+      await apiService.createFikir(fikirData);
       
       setMessage({ 
         type: 'success', 
@@ -98,6 +142,27 @@ const FikirEkle = () => {
           <div className="form-header">
             <h1><i className="fas fa-lightbulb"></i> Fikir Ekle</h1>
             <p>Fikrinizi paylaşın, topluluktan destek alın!</p>
+            <button 
+              type="button" 
+              onClick={otomatikDoldur}
+              className="auto-fill-button"
+              style={{
+                background: '#667eea',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                marginTop: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <i className="fas fa-magic"></i>
+              Otomatik Doldur
+            </button>
           </div>
 
           {message.text && (

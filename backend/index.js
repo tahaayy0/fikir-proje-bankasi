@@ -250,6 +250,8 @@ app.use('/api-docs', (req, res, next) => {
 // Routes
 const projeRoutes = require('./routes/projeler');
 const adminRoutes = require('./routes/admin');
+const oylamaRoutes = require('./routes/oylamalar');
+const fikirRoutes = require('./routes/fikirler');
 
 // Basic route
 app.get('/', (req, res) => {
@@ -353,6 +355,8 @@ app.options('*', cors(corsOptions));
 // API Routes
 app.use('/api/projeler', checkDBConnection, projeRoutes);
 app.use('/api/admin', checkDBConnection, adminRoutes);
+app.use('/api/oylamalar', checkDBConnection, oylamaRoutes);
+app.use('/api/fikirler', checkDBConnection, fikirRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

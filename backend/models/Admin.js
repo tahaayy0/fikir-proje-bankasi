@@ -2,17 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const adminSchema = new mongoose.Schema({
-  isim: {
+  ad: {
     type: String,
-    required: [true, 'İsim zorunludur'],
+    required: [true, 'Ad zorunludur'],
     trim: true,
-    maxlength: [50, 'İsim 50 karakterden uzun olamaz']
-  },
-  soyisim: {
-    type: String,
-    required: [true, 'Soyisim zorunludur'],
-    trim: true,
-    maxlength: [50, 'Soyisim 50 karakterden uzun olamaz']
+    maxlength: [100, 'Ad 100 karakterden uzun olamaz']
   },
   mail: {
     type: String,
@@ -21,6 +15,11 @@ const adminSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Geçerli bir e-posta adresi giriniz']
+  },
+  rol: {
+    type: String,
+    enum: ['admin', 'super_admin'],
+    default: 'admin'
   },
   sifre: {
     type: String,

@@ -46,6 +46,56 @@ const ProjeEkle = () => {
     }));
   };
 
+  // Türkçe karakterleri temizleyen fonksiyon
+  const turkceKarakterTemizle = (text) => {
+    return text
+      .replace(/ğ/g, 'g')
+      .replace(/Ğ/g, 'G')
+      .replace(/ü/g, 'u')
+      .replace(/Ü/g, 'U')
+      .replace(/ş/g, 's')
+      .replace(/Ş/g, 'S')
+      .replace(/ı/g, 'i')
+      .replace(/İ/g, 'I')
+      .replace(/ö/g, 'o')
+      .replace(/Ö/g, 'O')
+      .replace(/ç/g, 'c')
+      .replace(/Ç/g, 'C')
+      .replace(/[^a-zA-Z0-9@._-]/g, ''); // Sadece alfanumerik ve email karakterleri
+  };
+
+  // Otomatik doldurma fonksiyonu
+  const otomatikDoldur = () => {
+    const ornekVeriler = {
+      baslik: 'E-Ticaret Mobil Uygulaması',
+      aciklama: 'Kullanıcı dostu arayüz ile modern e-ticaret deneyimi sunan mobil uygulama. Güvenli ödeme sistemi, kişiselleştirilmiş öneriler ve hızlı teslimat seçenekleri ile kullanıcıların alışveriş deneyimini iyileştiriyor.',
+      problem: 'Mevcut e-ticaret uygulamaları karmaşık arayüzlere sahip ve kullanıcı deneyimi yetersiz. Mobil cihazlarda yavaş yükleme süreleri ve güvenlik endişeleri yaşanıyor.',
+      hedefKitle: '18-45 yaş arası mobil alışveriş yapan kullanıcılar, küçük ve orta ölçekli işletmeler, e-ticaret girişimcileri',
+      olgunlukSeviyesi: 'mvp',
+      kategori: 'Teknoloji',
+      kaynaklar: 'Mobil geliştirici, UI/UX tasarımcı, backend geliştirici, güvenlik uzmanı, sunucu altyapısı',
+      butce: '50000',
+      baslangicTarihi: '2024-01-15',
+      bitisTarihi: '2024-06-15',
+      dosyaLink: 'https://github.com/example/ecommerce-app',
+      adSoyad: 'Mehmet Demir',
+      email: 'mehmet.demir@example.com',
+      telefon: '0532 987 65 43',
+      takimUyeleri: 'Mehmet Demir (Proje Yöneticisi), Ayşe Kaya (UI/UX Tasarımcı), Ali Özkan (Backend Geliştirici)',
+      teknolojiler: 'React Native, Node.js, MongoDB, AWS, Stripe API',
+      hedefler: 'İlk 6 ayda 10,000 aktif kullanıcı, %95 kullanıcı memnuniyeti, güvenli ödeme sistemi entegrasyonu'
+    };
+
+    // Email'i Türkçe karakter içermeyecek şekilde temizle
+    ornekVeriler.email = turkceKarakterTemizle(ornekVeriler.email);
+    
+    setFormData(ornekVeriler);
+    setMessage({ 
+      type: 'success', 
+      text: 'Form otomatik olarak dolduruldu! Gerekirse verileri düzenleyebilirsiniz.' 
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -113,6 +163,27 @@ const ProjeEkle = () => {
           <div className="form-header">
             <h1><i className="fas fa-rocket"></i> Proje Ekle</h1>
             <p>Projenizi paylaşın, topluluktan destek alın!</p>
+            <button 
+              type="button" 
+              onClick={otomatikDoldur}
+              className="auto-fill-button"
+              style={{
+                background: '#667eea',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                marginTop: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <i className="fas fa-magic"></i>
+              Otomatik Doldur
+            </button>
           </div>
 
           {message.text && (

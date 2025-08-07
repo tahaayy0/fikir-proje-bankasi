@@ -1,4 +1,5 @@
 const Proje = require('../models/Project');
+const Idea = require('../models/Idea');
 const Oy = require('../models/Vote');
 const BasvuruTakip = require('../models/ApplicationTracking');
 const { validationResult } = require('express-validator');
@@ -92,18 +93,161 @@ const projeOlustur = async (req, res) => {
       });
     }
 
-    const proje = await Proje.create(req.body);
+    // Gelen veriyi hazırla
+    const projeData = {
+      ...req.body,
+      createdAt: new Date(),
+      aktif: true
+    };
+
+    // Fikir formu için özel alanları kontrol et
+    if (projeData.tur === 'fikir') {
+      // Fikir formundan gelen veriler için kisaAciklama alanını aciklama'ya kopyala
+      if (projeData.kisaAciklama && !projeData.aciklama) {
+        projeData.aciklama = projeData.kisaAciklama;
+      }
+      
+      // Fikir formu için olusturanKisi alanını adSoyad'dan al
+      if (projeData.adSoyad && !projeData.olusturanKisi) {
+        projeData.olusturanKisi = projeData.adSoyad;
+      }
+    }
+
+    // Proje oluştur
+    const proje = await Proje.create(projeData);
+    
+    // Başvuru takip kaydı oluştur
+    try {
+      const BasvuruTakip = require('../models/ApplicationTracking');
+      const takipKodu = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      await BasvuruTakip.create({
+        projeId: proje._id,
+        email: projeData.email,
+        takipKodu: takipKodu,
+        durumGecmisi: [{
+          durum: 'Beklemede',
+          tarih: new Date(),
+          aciklama: 'Başvuru alındı ve inceleme sürecine alındı'
+        }],
+        sonGuncelleme: new Date()
+      });
+    } catch (takipError) {
+      console.error('Başvuru takip kaydı oluşturulurken hata:', takipError);
+      // Başvuru takip hatası ana işlemi etkilemesin
+    }
+    
+    console.log('Yeni başvuru oluşturuldu:', {
+      id: proje._id,
+      tur: proje.tur,
+      baslik: proje.baslik,
+      email: proje.email,
+      tarih: proje.createdAt
+    });
     
     res.status(201).json({ 
       success: true, 
-      message: 'Proje başarıyla oluşturuldu',
+      message: projeData.tur === 'fikir' ? 'Fikriniz başarıyla gönderildi! Admin onayından sonra topluluk oylamasına açılacak.' : 'Projeniz başarıyla gönderildi! Admin onayından sonra topluluk oylamasına açılacak.',
       data: proje 
     });
   } catch (error) {
     console.error('Proje oluşturulurken hata:', error);
+    
+    // MongoDB validation hatalarını daha detaylı göster
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Veri doğrulama hatası',
+        errors: validationErrors 
+      });
+    }
+    
     res.status(500).json({ 
       success: false, 
       message: 'Proje oluşturulurken bir hata oluştu',
+      error: error.message 
+    });
+  }
+};
+
+// @desc    Yeni fikir oluştur (Idea modeli ile)
+// @route   POST /api/fikirler
+// @access  Public
+const fikirOlustur = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        errors: errors.array() 
+      });
+    }
+
+    // Fikir verisini hazırla
+    const fikirData = {
+      ...req.body,
+      createdAt: new Date(),
+      aktif: true
+    };
+
+    // Idea modeli ile fikir oluştur
+    const fikir = await Idea.create(fikirData);
+    
+    // Başvuru takip kaydı oluştur
+    try {
+      const takipKodu = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      await BasvuruTakip.create({
+        projeId: fikir._id,
+        email: fikirData.email,
+        takipKodu: takipKodu,
+        durumGecmisi: [{
+          durum: 'Beklemede',
+          tarih: new Date(),
+          aciklama: 'Fikir başvurusu alındı ve inceleme sürecine alındı'
+        }],
+        sonGuncelleme: new Date()
+      });
+    } catch (takipError) {
+      console.error('Başvuru takip kaydı oluşturulurken hata:', takipError);
+    }
+    
+    console.log('Yeni fikir oluşturuldu:', {
+      id: fikir._id,
+      baslik: fikir.baslik,
+      email: fikir.email,
+      tarih: fikir.createdAt
+    });
+    
+    res.status(201).json({ 
+      success: true, 
+      message: 'Fikriniz başarıyla gönderildi! Admin onayından sonra topluluk oylamasına açılacak.',
+      data: fikir 
+    });
+  } catch (error) {
+    console.error('Fikir oluşturulurken hata:', error);
+    
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Veri doğrulama hatası',
+        errors: validationErrors 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Fikir oluşturulurken bir hata oluştu',
       error: error.message 
     });
   }
@@ -294,6 +438,17 @@ const oyVer = async (req, res) => {
       kriterler
     });
 
+    // Proje oy sayılarını güncelle
+    const yeniOySayisi = (proje.oySayisi || 0) + 1;
+    const yeniToplamOy = (proje.toplamOy || 0) + oy;
+    const yeniOrtalamaOy = yeniToplamOy / yeniOySayisi;
+
+    await Proje.findByIdAndUpdate(projeId, {
+      oySayisi: yeniOySayisi,
+      toplamOy: yeniToplamOy,
+      ortalamaOy: yeniOrtalamaOy
+    });
+
     res.status(201).json({
       success: true,
       message: 'Oy başarıyla verildi',
@@ -432,8 +587,12 @@ const oylamaProjeleriGetir = async (req, res) => {
   try {
     const { kategori, siralama = 'yeni', sayfa = 1, limit = 10 } = req.query;
 
+    console.log('Gelen parametreler:', { kategori, siralama, sayfa, limit });
+
     let filter = { durum: 'Onaylandı', aktif: true };
     if (kategori && kategori !== 'Tümü') filter.kategori = kategori;
+
+    console.log('Filtre:', filter);
 
     let sort = {};
     switch (siralama) {
@@ -453,11 +612,21 @@ const oylamaProjeleriGetir = async (req, res) => {
         sort = { createdAt: -1 };
     }
 
+    console.log('Sıralama:', sort);
+
     const projeler = await Proje.find(filter)
       .sort(sort)
       .limit(limit * 1)
       .skip((sayfa - 1) * limit)
       .exec();
+
+    console.log('Bulunan proje sayısı:', projeler.length);
+    console.log('Projeler:', projeler.map(p => ({ 
+      baslik: p.baslik, 
+      oySayisi: p.oySayisi, 
+      ortalamaOy: p.ortalamaOy,
+      createdAt: p.createdAt 
+    })));
 
     const toplam = await Proje.countDocuments(filter);
 
@@ -485,6 +654,7 @@ module.exports = {
   tumProjeleriGetir,
   projeGetir,
   projeOlustur,
+  fikirOlustur,
   projeGuncelle,
   projeSil,
   kategoriIstatistikleri,
