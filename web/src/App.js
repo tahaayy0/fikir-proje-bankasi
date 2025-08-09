@@ -7,26 +7,33 @@ import AddProject from './components/AddProject';
 import Vote from './components/Vote';
 import ApplicationTracking from './components/ApplicationTracking';
 import Moderation from './components/Moderation';
+import Login from './components/Login';
+import Register from './components/Register';
+import AdminLogin from './components/AdminLogin';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <Header />
-        <main className="main-content">
+    <AuthProvider>
+      <Router>
+        <div className="app">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/add-idea" element={<AddIdea />} />
-            <Route path="/add-project" element={<AddProject />} />
-            <Route path="/vote" element={<Vote />} />
-            <Route path="/application-tracking" element={<ApplicationTracking />} />
-            <Route path="/moderation" element={<Moderation />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/" element={<ProtectedRoute><><Header /><HomePage /></></ProtectedRoute>} />
+            <Route path="/add-idea" element={<ProtectedRoute><><Header /><AddIdea /></></ProtectedRoute>} />
+            <Route path="/add-project" element={<ProtectedRoute><><Header /><AddProject /></></ProtectedRoute>} />
+            <Route path="/vote" element={<ProtectedRoute><><Header /><Vote /></></ProtectedRoute>} />
+            <Route path="/application-tracking" element={<ProtectedRoute><><Header /><ApplicationTracking /></></ProtectedRoute>} />
+            <Route path="/moderation" element={<ProtectedRoute adminOnly><><Header /><Moderation /></></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
-        </main>
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

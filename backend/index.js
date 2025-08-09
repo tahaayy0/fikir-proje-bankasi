@@ -252,6 +252,7 @@ const projeRoutes = require('./routes/projeler');
 const adminRoutes = require('./routes/admin');
 const oylamaRoutes = require('./routes/oylamalar');
 const fikirRoutes = require('./routes/fikirler');
+const userRoutes = require('./routes/users');
 
 // Basic route
 app.get('/', (req, res) => {
@@ -357,6 +358,7 @@ app.use('/api/projeler', checkDBConnection, projeRoutes);
 app.use('/api/admin', checkDBConnection, adminRoutes);
 app.use('/api/oylamalar', checkDBConnection, oylamaRoutes);
 app.use('/api/fikirler', checkDBConnection, fikirRoutes);
+app.use('/api/users', checkDBConnection, userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

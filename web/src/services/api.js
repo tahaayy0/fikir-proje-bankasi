@@ -91,6 +91,14 @@ export const apiService = {
   updateAdminProfile: (data) => api.put('/admin/profile', data),
   changeAdminPassword: (data) => api.put('/admin/change-password', data),
   
+  // User authentication işlemleri
+  userLogin: (email, password) => api.post('/users/login', { email, password }),
+  userRegister: (userData) => api.post('/users/register', userData),
+  userLogout: () => api.post('/users/logout'),
+  getUserProfile: () => api.get('/users/profile'),
+  updateUserProfile: (data) => api.put('/users/profile', data),
+  changeUserPassword: (data) => api.put('/users/change-password', data),
+  
   // Token yönetimi
   setAuthToken: (token) => {
     if (token) {

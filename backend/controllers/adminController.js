@@ -38,7 +38,7 @@ const adminLogin = async (req, res) => {
 
     // JWT token oluştur
     const token = jwt.sign(
-      { id: admin._id, mail: admin.mail },
+      { id: admin._id, mail: admin.mail, type: 'admin' },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -46,12 +46,14 @@ const adminLogin = async (req, res) => {
     res.json({
       success: true,
       message: 'Giriş başarılı',
-      token,
-      admin: {
-        id: admin._id,
-        ad: admin.ad,
-        mail: admin.mail,
-        rol: admin.rol
+      data: {
+        admin: {
+          id: admin._id,
+          ad: admin.ad,
+          mail: admin.mail,
+          rol: admin.rol
+        },
+        token
       }
     });
 
@@ -89,26 +91,24 @@ const adminRegister = async (req, res) => {
       });
     }
 
-    // Şifreyi hashle
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(sifre, salt);
-
     // Admin oluştur
     const admin = await Admin.create({
       ad,
       mail,
-      sifre: hashedPassword,
+      sifre,
       rol: 'admin'
     });
 
     res.status(201).json({
       success: true,
       message: 'Admin başarıyla oluşturuldu',
-      admin: {
-        id: admin._id,
-        ad: admin.ad,
-        mail: admin.mail,
-        rol: admin.rol
+      data: {
+        admin: {
+          id: admin._id,
+          ad: admin.ad,
+          mail: admin.mail,
+          rol: admin.rol
+        }
       }
     });
 
@@ -158,7 +158,9 @@ const getAdminProfile = async (req, res) => {
 
     res.json({
       success: true,
-      admin
+      data: {
+        admin
+      }
     });
 
   } catch (error) {
@@ -207,7 +209,9 @@ const updateAdminProfile = async (req, res) => {
     res.json({
       success: true,
       message: 'Profil başarıyla güncellendi',
-      admin
+      data: {
+        admin
+      }
     });
 
   } catch (error) {
@@ -253,12 +257,8 @@ const changeAdminPassword = async (req, res) => {
       });
     }
 
-    // Yeni şifreyi hashle
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(yeniSifre, salt);
-
     // Şifreyi güncelle
-    admin.sifre = hashedPassword;
+    admin.sifre = yeniSifre;
     await admin.save();
 
     res.json({

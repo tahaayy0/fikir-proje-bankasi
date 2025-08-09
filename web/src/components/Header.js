@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, admin, logout } = useAuth();
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -76,18 +78,27 @@ const Header = () => {
                   Track Application
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link 
-                  to="/moderation" 
-                  className={`nav-link moderasyon ${isActive('/moderation') ? 'active' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <i className="fas fa-shield-alt"></i>
-                  Moderation
-                </Link>
-              </li>
+
             </ul>
           </nav>
+
+          {/* Profile Section */}
+          <div className="profile-section">
+            <div className="user-profile">
+              <div className="user-info">
+                <span className="user-name">
+                  {user ? user.name : admin ? admin.ad : 'Kullanıcı'}
+                </span>
+                <span className="user-role">
+                  {user ? 'Kullanıcı' : admin ? 'Admin' : ''}
+                </span>
+              </div>
+              <button className="logout-btn" onClick={logout}>
+                <i className="fas fa-sign-out-alt"></i>
+                Çıkış
+              </button>
+            </div>
+          </div>
 
           {/* Mobile Menu Button */}
           <button className="mobile-menu-btn" onClick={toggleMenu}>

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
+const User = require('../models/User');
 
 // JWT token doğrulama middleware'i
 const authenticateToken = async (req, res, next) => {
@@ -17,18 +18,38 @@ const authenticateToken = async (req, res, next) => {
     // Token'ı doğrula
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     
-    // Admin'i veritabanından kontrol et
-    const admin = await Admin.findById(decoded.id).select('-sifre');
-    
-    if (!admin || !admin.aktif) {
+    // Token tipine göre kullanıcı veya admin kontrolü
+    if (decoded.type === 'admin') {
+      const admin = await Admin.findById(decoded.id).select('-sifre');
+      
+      if (!admin || !admin.aktif) {
+        return res.status(401).json({
+          success: false,
+          message: 'Geçersiz token veya admin hesabı aktif değil'
+        });
+      }
+
+      req.admin = { ...admin.toObject(), id: admin._id };
+      req.userType = 'admin';
+    } else if (decoded.type === 'user') {
+      const user = await User.findById(decoded.userId).select('-password');
+      
+      if (!user || !user.isActive) {
+        return res.status(401).json({
+          success: false,
+          message: 'Geçersiz token veya kullanıcı hesabı aktif değil'
+        });
+      }
+
+      req.user = user;
+      req.userType = 'user';
+    } else {
       return res.status(401).json({
         success: false,
-        message: 'Geçersiz token veya admin hesabı aktif değil'
+        message: 'Geçersiz token tipi'
       });
     }
 
-    // Admin bilgisini request'e ekle
-    req.admin = admin;
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
@@ -50,9 +71,9 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Admin yetkisi kontrolü (opsiyonel - gelecekte farklı roller için)
+// Admin yetkisi kontrolü
 const requireAdmin = (req, res, next) => {
-  if (!req.admin) {
+  if (!req.admin || req.userType !== 'admin') {
     return res.status(403).json({
       success: false,
       message: 'Admin yetkisi gerekli'
@@ -61,7 +82,19 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+// User yetkisi kontrolü
+const requireUser = (req, res, next) => {
+  if (!req.user || req.userType !== 'user') {
+    return res.status(403).json({
+      success: false,
+      message: 'Kullanıcı yetkisi gerekli'
+    });
+  }
+  next();
+};
+
 module.exports = {
   authenticateToken,
-  requireAdmin
+  requireAdmin,
+  requireUser
 }; 
